@@ -1,14 +1,18 @@
+
 import logging
 from asyncio.log import logger
 from re import M
 from fastapi import FastAPI, Depends, Request
-from pydantic import BaseModel
-from typing import Union
-from routers import userRouter
+
+from middleware.authentication_middleware import AuthenticationMiddleware
+from middleware.authorization_middleware import AuthorizationMiddleware
+from routers import user_router, auth_router
 from database import engine, get_db, Base
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 import logging
+from fastapi.responses import JSONResponse
+from services.user_service import getUserById
 
 Base.metadata.create_all(bind=engine)
 
@@ -31,10 +35,11 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 # log = logging.getLogger(__name__)
-
-
 app = FastAPI()
-app.include_router(userRouter.router)
+app.add_middleware(AuthenticationMiddleware)
+app.add_middleware(AuthorizationMiddleware)
+app.include_router(user_router.router)
+app.include_router(auth_router.router)
 
 
 @app.exception_handler(RequestValidationError)
@@ -48,32 +53,3 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             ],
         },
     )
-
-
-class Item(BaseModel):
-    name: str
-    description: Union[str, None] = None
-    price: float
-    tax: Union[float, None] = None
-
-
-@app.get('/')
-def get():
-    return {"status": "ok"}
-
-
-@app.post('/')
-def post(item: Item):
-    logger.debug("hi", item)
-    # log.info(item)
-    return {"status": "oki", "data": item}
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int):
-    return {"item_id": item_id}
-
-
-@app.get("/files/{file_path:path}")
-async def read_file(file_path: str):
-    return {"file_path": file_path}
