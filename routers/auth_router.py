@@ -1,6 +1,8 @@
 import email
+from logging import Logger
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
+from custom_logger import get_logger
 from database import get_db
 from models.roles_model import Role
 from services.current_user_service import get_current_user
@@ -49,7 +51,8 @@ def create_jwt_token(payload: dict, expires_delta: int) -> dict:
 
 
 @router.post("/verify/token")
-def getToken(user: UserLogin, currentUser=Depends(get_current_user)):
+def getToken(user: UserLogin, logger: Logger = Depends(get_logger), currentUser=Depends(get_current_user)):
+    logger.info('verifying token')
     return currentUser
 
 
@@ -59,19 +62,19 @@ def getToken2(user: UserLogin, currentUser=Depends(get_current_user)):
 
 
 @router.post("/token", dependencies=[])
-def getToken(user: UserLogin, db: Session = Depends(get_db)):
-    print("token api call for", user.email)
+def getToken(user: UserLogin, db: Session = Depends(get_db), logger: Logger = Depends(get_logger)):
+    logger.info("token api call for", user.email)
     dbUser = getUserWithRoleAndPermissions([User.email == user.email], db)
-    print("user found", dbUser.email)
+    logger.info("user found", dbUser.email)
 
     if not dbUser:
-        print("user not found")
+        logger.info("user not found")
         raise HTTPException(
             status_code=400, detail=f"User email / password not correct")
 
     isUserPasswordValid = verify_password(user.password, dbUser.password)
     if not isUserPasswordValid:
-        print("password is in correct")
+        logger.info("password is in correct")
         raise HTTPException(
             status_code=400, detail=f"User email / password not correct")
     user_dict = dbUser.__dict__
@@ -85,8 +88,8 @@ def getToken(user: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.post("/register", dependencies=[])
-def create_user(user: UserCreateWithRole, db: Session = Depends(get_db)):
-    print("hi", user)
+def create_user(user: UserCreateWithRole, logger: Logger = Depends(get_logger), db: Session = Depends(get_db)):
+    logger.info("hi", user)
     user.password = get_hashed_password(user.password)
     try:
         new_user = User(name=user.name, email=user.email,
@@ -96,7 +99,7 @@ def create_user(user: UserCreateWithRole, db: Session = Depends(get_db)):
         db.refresh(new_user)
         return new_user
     except Exception as e:
-        print("error while creating user", e)
+        logger.info("error while creating user", e)
     error_message = str(e)
     raise HTTPException(
         status_code=400, detail=f"Error while creating new user {error_message}")
