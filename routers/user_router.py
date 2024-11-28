@@ -20,7 +20,6 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), lo
 
 @router.post("/")
 def create_user(user: UserCreate, db: Session = Depends(get_db), logger: Logger = Depends(get_logger)):
-    logger.info("hi")
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
