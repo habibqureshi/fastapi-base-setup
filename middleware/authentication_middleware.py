@@ -6,8 +6,8 @@ from fastapi.responses import JSONResponse
 
 from custom_logger import get_logger
 from services.auth_service import isAuthenticated
-EXCLUDED_PATHS_FOR_AUTHENTICATION = os.getenv(
-    "EXCLUDED_PATHS_FOR_AUTHENTICATION", ["/auth/token", "/auth/register", "/docs"])
+from configs import OPEN_END_POINTS
+
 
 logger = get_logger()
 
@@ -17,7 +17,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         logger.info(
             f'AuthenticationMiddleware called {request.url.path} {request.method}')
 
-        if request.url.path not in EXCLUDED_PATHS_FOR_AUTHENTICATION:
+        if request.url.path not in OPEN_END_POINTS:
             try:
                 logger.info('checking current user')
                 hasCurrentUser = hasattr(request.state, 'current_user')

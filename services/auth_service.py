@@ -15,15 +15,12 @@ from schemas.user_schema import UserCreateWithRole
 from jose import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
+from services.current_user_service import get_current_user
 from services.user_service import create_new_user, getUserWithRoleAndPermissions
+from configs import JWT_ALGORITHM, JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY
 ACCESS_TOKEN_EXPIRE_SECONDS = 60 * 60 * 1  # 1 hour
-REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
-ALGORITHM = "HS256"
-# should be kept secret
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "12345_54321")
+REFRESH_TOKEN_EXPIRE_SECONDS = 60  # 7 days
 
-JWT_REFRESH_SECRET_KEY = os.getenv(
-    "JWT_REFRESH_SECRET_KEY", "Refresh12345_54321Refresh")
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 logger = get_logger()
@@ -33,12 +30,26 @@ def verify_password(password: str, hashed_pass: str) -> bool:
     return password_context.verify(password, hashed_pass)
 
 
-def create_jwt_token(payload: dict, expires_delta: int) -> dict:
+def create_jwt_token(payload: dict, expires_delta: int, SECRET_KEY) -> dict:
 
     exp_time = datetime.utcnow() + timedelta(seconds=expires_delta)
     to_encode = {"exp": exp_time, "sub": str(payload)}
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode,  SECRET_KEY, JWT_ALGORITHM)
     return dict(token=encoded_jwt, expire=expires_delta)
+
+
+def generate_refresh_token(db, current_user):
+    logger.info(f'getting refresh token for current user {current_user}')
+    tokenData = create_jwt_token((current_user.name, current_user.email,
+                                  current_user.id), ACCESS_TOKEN_EXPIRE_SECONDS, JWT_SECRET_KEY)
+    refreshToken = create_jwt_token((current_user.name, current_user.email,
+                                     current_user.id), REFRESH_TOKEN_EXPIRE_SECONDS, JWT_REFRESH_SECRET_KEY)
+    return {
+        "access_token": tokenData['token'],
+        "access_token_expire_in": tokenData['expire'],
+        "refresh_token": refreshToken['token'],
+        "refresh_token_expire_in": refreshToken['expire'],
+        **current_user.__dict__}
 
 
 def generate_token(user: UserLogin, db: Session) -> dict:
@@ -58,16 +69,29 @@ def generate_token(user: UserLogin, db: Session) -> dict:
     user_dict = dbUser.__dict__
     del user_dict['password']
     tokenData = create_jwt_token((dbUser.name, dbUser.email,
-                                  dbUser.id), ACCESS_TOKEN_EXPIRE_SECONDS)
+                                  dbUser.id), ACCESS_TOKEN_EXPIRE_SECONDS, JWT_SECRET_KEY)
+    refreshToken = create_jwt_token((dbUser.name, dbUser.email,
+                                     dbUser.id), REFRESH_TOKEN_EXPIRE_SECONDS, JWT_REFRESH_SECRET_KEY)
     return {
-        "token": tokenData['token'],
-        "expire_in": tokenData['expire'],
+        "access_token": tokenData['token'],
+        "access_token_expire_in": tokenData['expire'],
+        "refresh_token": refreshToken['token'],
+        "refresh_token_expire_in": refreshToken['expire'],
         **user_dict}
 
 
 def validateTokenAndReturnCurrentUser(token, db: Session):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        try:
+            payload = jwt.decode(token, JWT_SECRET_KEY,
+                                 algorithms=[JWT_ALGORITHM])
+        except Exception as e:
+            logger.error(
+                f'access token not valid, checking with refresh key {token}')
+            payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY,
+                                 algorithms=[JWT_ALGORITHM])
+            logger.info('hello')
+
         user_payload = payload.get('sub')
         data_tuple = eval(user_payload)
         filter = [User.id == data_tuple[2]]
