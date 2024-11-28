@@ -5,8 +5,9 @@ import os
 from fastapi.responses import JSONResponse
 
 from custom_logger import get_logger
+from services.auth_service import isAuthenticated
 EXCLUDED_PATHS_FOR_AUTHENTICATION = os.getenv(
-    "EXCLUDED_PATHS_FOR_AUTHENTICATION", ["/auth/token", "/auth/register"])
+    "EXCLUDED_PATHS_FOR_AUTHENTICATION", ["/auth/token", "/auth/register", "/docs"])
 
 logger = get_logger()
 
@@ -24,17 +25,8 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
                 if hasCurrentUser:
                     logger.info(f'authentication {request.state.current_user}')
                     currentUser = request.state.current_user
-                    permissions_dict = {
-                        permission.url: permission.name
-                        for role in currentUser.roles
-                        for permission in role.permissions
-                    }
-                    logger.info(f'user all permissions {permissions_dict}')
-                    logger.info("have permission")
-                    # it will check METHOD:API_PATH or * for super admin permission
-                    isRouteAllowed = permissions_dict.get(
-                        request.method+":"+request.url.path, None)
-                    # or permissions_dict.get("*", None)
+                    isRouteAllowed = isAuthenticated(request, currentUser)
+                    logger.info(f'route allowed {isRouteAllowed}')
                     if not isRouteAllowed:
                         return JSONResponse(status_code=401, content={'message': "Permission denied"})
 

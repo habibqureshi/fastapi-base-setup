@@ -2,7 +2,8 @@ from dataclasses import Field
 from pydantic import BaseModel, EmailStr, validator
 import re
 from typing import List
-from schemas.role_schema import Role
+
+from schemas.role_schema import Role, RoleWithPermission
 
 
 class UserLogin(BaseModel):
@@ -16,7 +17,7 @@ class UserLoginResponse(BaseModel):
     email: EmailStr
     token: str
     expire_in: int
-    role: List[Role]
+    role: List[RoleWithPermission]
 
     class Config:
         orm_mode = True
@@ -55,7 +56,7 @@ class UserCreate(BaseModel):
 
 
 class UserCreateWithRole(UserCreate):
-    role: int
+    roles: List[Role]
 
     class Config:
         orm_mode = True
