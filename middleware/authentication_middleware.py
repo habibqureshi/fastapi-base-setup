@@ -21,7 +21,6 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
             try:
                 logger.info('checking current user')
                 hasCurrentUser = hasattr(request.state, 'current_user')
-                logger.info(f'attribute {hasCurrentUser}')
                 if hasCurrentUser:
                     logger.info(f'authentication {request.state.current_user}')
                     currentUser = request.state.current_user

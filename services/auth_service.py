@@ -1,5 +1,6 @@
 
 from logging import Logger
+from fastapi import Request
 from sqlalchemy.orm import Session
 from custom_logger import get_logger
 
@@ -85,7 +86,6 @@ def validateTokenAndReturnCurrentUser(token, db: Session):
                 f'access token not valid, checking with refresh key {token}')
             payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY,
                                  algorithms=[JWT_ALGORITHM])
-            logger.info('hello')
 
         user_payload = payload.get('sub')
         data_tuple = eval(user_payload)
@@ -97,12 +97,13 @@ def validateTokenAndReturnCurrentUser(token, db: Session):
         raise e
 
 
-def validate_token(request, db: Session):
+def validate_token(request: Request, db: Session):
     authorization_token = request.headers.get("Authorization")
     logger.info(f'token {authorization_token}')
     if authorization_token.startswith("Bearer "):
         token = authorization_token[len("Bearer "):]
         current_user = validateTokenAndReturnCurrentUser(token, db)
+        current_user.ip = request.client.host
         request.state.current_user = current_user
         logger.info(
             f'token validated and current user is ${current_user}')
