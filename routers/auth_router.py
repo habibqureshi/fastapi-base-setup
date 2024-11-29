@@ -1,16 +1,11 @@
 from logging import Logger
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from custom_logger import get_logger
 from database import get_db
-from models.roles_model import Role
 from services.auth_service import generate_refresh_token, generate_token, genreate_user
 from services.current_user_service import get_current_user
-from models.user_model import User
 from schemas.user_schema import UserCreateWithRole, UserLogin
-
-
-from services.user_service import getUserWithRoleAndPermissions
 
 
 router = APIRouter(

@@ -1,21 +1,16 @@
 
 from logging import Logger
-from sqlite3 import IntegrityError
 from sqlalchemy.orm import Session
 from custom_logger import get_logger
-from database import get_db
-from fastapi import Depends
+
 
 from models.user_model import User
 from schemas.user_schema import UserLogin
 from fastapi import HTTPException
-import os
-from fastapi.responses import JSONResponse
 from schemas.user_schema import UserCreateWithRole
 from jose import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from services.current_user_service import get_current_user
 from services.user_service import create_new_user, getUserWithRoleAndPermissions
 from configs import JWT_ALGORITHM, JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY
 ACCESS_TOKEN_EXPIRE_SECONDS = 60 * 60 * 1  # 1 hour
