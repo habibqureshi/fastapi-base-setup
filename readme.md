@@ -76,6 +76,9 @@ Run container in background with env
 ```bash
   docker run -e VARIABLE=VALUE -d -p 8000:8000 fastapibase
 ```
+## Custom logger output
+
+![image](https://github.com/user-attachments/assets/add07161-523b-4969-8154-31c6cb421e97)
 
 ## Authors
 
