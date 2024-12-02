@@ -25,6 +25,7 @@ Go to the project directory
 ```
 
 Python Version : `Python 3.X.X`
+FastApi Version : `0.115.0`
 
 Install dependencies
 
@@ -48,6 +49,32 @@ Start the server
 
 ```bash
   uvicorn main:app --reload --port 8000
+```
+
+## Running on Docker
+
+Build image
+
+```bash
+   docker build -t fastapibase .
+```
+
+Run container
+
+```bash
+  docker run -p 8000:8000 fastapibase
+```
+
+Run container in background
+
+```bash
+  docker run -d -p 8000:8000 fastapibase
+```
+
+Run container in background with env
+
+```bash
+  docker run -e VARIABLE=VALUE -d -p 8000:8000 fastapibase
 ```
 
 ## Authors
