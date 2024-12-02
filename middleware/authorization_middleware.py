@@ -22,7 +22,6 @@ def validated_token(token, db: Session):
         user_payload = payload.get('sub')
         data_tuple = eval(user_payload)
         filter = [User.id == data_tuple[2]]
-
         current_user = getUserWithRoleAndPermissions(filter, db)
         return current_user
     except Exception as e:
@@ -33,7 +32,7 @@ def validated_token(token, db: Session):
 class AuthorizationMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
-        logger.info("AuthorizationMiddleware called")
+        logger.info(f'AuthorizationMiddleware called {request.client.host}')
         if request.url.path not in OPEN_END_POINTS:
             try:
                 db = get_db()

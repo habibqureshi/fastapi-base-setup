@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-import re
 from typing import List
 
 from schemas.permission_schema import Permission
