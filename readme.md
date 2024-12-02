@@ -80,6 +80,11 @@ Run container in background with env
 
 ![image](https://github.com/user-attachments/assets/add07161-523b-4969-8154-31c6cb421e97)
 
+## Folder structure
+
+![image](https://github.com/user-attachments/assets/090782e1-acc7-490b-9266-551b97c84884)
+
+
 ## Authors
 
 - [@habibqureshi](https://github.com/habibqureshi)
