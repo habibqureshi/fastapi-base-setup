@@ -76,6 +76,7 @@ Run container in background with env
 ```bash
   docker run -e VARIABLE=VALUE -d -p 8000:8000 fastapibase
 ```
+
 ## Custom logger output
 
 ![image](https://github.com/user-attachments/assets/add07161-523b-4969-8154-31c6cb421e97)
@@ -84,6 +85,19 @@ Run container in background with env
 
 ![image](https://github.com/user-attachments/assets/090782e1-acc7-490b-9266-551b97c84884)
 
+## Environment Variables
+
+All environment variables are defined in config.js with default values. These variables will be exported and consistently used throughout the application. This approach eliminates the need to remember variable names and ensures uniformity across the app.
+
+`OPEN_END_POINTS`
+
+`JWT_SECRET_KEY`
+
+`JWT_ALGORITHM`
+
+`JWT_REFRESH_SECRET_KEY`
+
+`DB_URL`
 
 ## Authors
 
