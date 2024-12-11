@@ -51,6 +51,12 @@ Start the server
   uvicorn main:app --reload --port 8000
 ```
 
+SQL schema
+
+```bash
+ use base-setup.sql file
+```
+
 ## Running on Docker
 
 Build image
