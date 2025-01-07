@@ -93,7 +93,7 @@ Run container in background with env
 
 ## Environment Variables
 
-All environment variables are defined in config.js with default values. These variables will be exported and consistently used throughout the application. This approach eliminates the need to remember variable names and ensures uniformity across the app.
+All environment variables are defined in config.py with default values. These variables will be exported and consistently used throughout the application. This approach eliminates the need to remember variable names and ensures uniformity across the app.
 
 `OPEN_END_POINTS`
 
