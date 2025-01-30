@@ -56,6 +56,11 @@ SQL schema
 ```bash
  use base-setup.sql file
 ```
+## Test APIs 
+
+```bash
+https://www.postman.com/test66-1494/workspace/habib-qureshi-public-workspace/collection/3348548-a131b711-dde9-40b4-8220-161fccbb671d
+```
 
 ## Running on Docker
 
