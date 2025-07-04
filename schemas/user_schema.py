@@ -1,5 +1,5 @@
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_validator, validator
 import re
 from typing import List
 
@@ -34,7 +34,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
-    @validator('password')
+    @field_validator('password')
     def validate_password(cls, password):
         if len(password) < 8:
             raise ValueError('Password must be at least 8 characters long.')
