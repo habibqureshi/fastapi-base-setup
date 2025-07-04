@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 OPEN_END_POINTS = os.getenv(
     "OPEN_END_POINTS", ["/auth/token", "/auth/register", "/docs"])
